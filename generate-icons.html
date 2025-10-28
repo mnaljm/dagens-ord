@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #38a169;
+        }
+        .preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 5px;
+        }
+        .instructions {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generate Icons for Dagens Ord Extension</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Click "Generate Icons" button below</li>
+                <li>The PNG files will automatically download</li>
+                <li>Move the downloaded files to the <code>icons/</code> folder</li>
+                <li>Make sure they are named: icon16.png, icon32.png, icon48.png, icon128.png</li>
+            </ol>
+        </div>
+        
+        <button onclick="generateIcons()">Generate All Icons</button>
+        
+        <div id="previews"></div>
+    </div>
+
+    <script>
+        const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48bb78;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38a169;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="url(#gradient)" stroke="#fff" stroke-width="4"/>
+  <text x="64" y="75" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="white">U</text>
+  <circle cx="64" cy="25" r="8" fill="white"/>
+  <circle cx="25" cy="45" r="4" fill="white" opacity="0.7"/>
+  <circle cx="103" cy="45" r="4" fill="white" opacity="0.7"/>
+  <circle cx="25" cy="85" r="3" fill="white" opacity="0.5"/>
+  <circle cx="103" cy="85" r="3" fill="white" opacity="0.5"/>
+</svg>`;
+
+        function generateIcons() {
+            const sizes = [16, 32, 48, 128];
+            const previewsDiv = document.getElementById('previews');
+            previewsDiv.innerHTML = '';
+            
+            sizes.forEach(size => {
+                generateIcon(size, previewsDiv);
+            });
+        }
+
+        function generateIcon(size, container) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                // Create preview
+                const preview = document.createElement('div');
+                preview.className = 'preview';
+                preview.innerHTML = `
+                    <div>${size}x${size}</div>
+                    ${canvas.outerHTML}
+                    <br>
+                    <button onclick="downloadIcon(this, ${size})">Download icon${size}.png</button>
+                `;
+                container.appendChild(preview);
+                
+                // Store canvas reference for download
+                preview.querySelector('button').canvas = canvas;
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+        }
+
+        function downloadIcon(button, size) {
+            const canvas = button.canvas;
+            const link = document.createElement('a');
+            link.download = `icon${size}.png`;
+            link.href = canvas.toDataURL();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

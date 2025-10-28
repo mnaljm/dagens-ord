@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dagens Ord</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dagens Ord</h1>
+            <span class="source">fra ordnet.dk</span>
+        </header>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Henter dagens ord...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <p>Kunne ikke hente dagens ord. Prøv igen senere.</p>
+            <button id="retry-btn">Prøv igen</button>
+        </div>
+        
+        <div id="content" class="content" style="display: none;">
+            <div class="phrase">
+                <h2 id="phrase-text"></h2>
+            </div>
+            
+            <div class="definition">
+                <p id="definition-text"></p>
+            </div>
+            
+            <div class="explanation" id="explanation" style="display: none;">
+                <p id="explanation-text"></p>
+            </div>
+            
+            <div class="actions">
+                <button id="toggle-explanation" class="btn-primary">Se forklaring</button>
+                <a id="lookup-link" href="#" target="_blank" class="btn-secondary">Slå op</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
