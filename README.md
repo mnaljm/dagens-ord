@@ -96,7 +96,6 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 
 ### Permissions:
 
-- `activeTab` - For at kunne interagere med den aktive tab
 - `https://ordnet.dk/*` - For at kunne hente data fra ordnet.dk
 
 ## Problemløsning

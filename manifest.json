@@ -3,9 +3,7 @@
   "name": "Dagens Ord",
   "version": "1.1",
   "description": "Vis dagens ord fra ordnet.dk",
-  "permissions": [
-    "activeTab"
-  ],
+  "permissions": [],
   "host_permissions": [
     "https://ordnet.dk/*"
   ],
