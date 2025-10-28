@@ -1,3 +1,10 @@
+:root {
+    --primary-color-1: #48bb78;
+    --primary-color-2: #38a169;
+    --gradient-angle: 135deg;
+    --gradient: linear-gradient(var(--gradient-angle), var(--primary-color-1) 0%, var(--primary-color-2) 100%);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +13,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #b5c99a 0%, #97a97c 100%);
+    background: var(--gradient);
     color: #333;
     width: 400px;
     min-height: 300px;
@@ -20,7 +27,7 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: var(--gradient);
     color: white;
     padding: 20px;
     text-align: center;
@@ -48,7 +55,7 @@ header h1 {
     width: 40px;
     height: 40px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #48bb78;
+    border-top: 4px solid var(--primary-color-1);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
@@ -83,7 +90,7 @@ header h1 {
     color: #2c3e50;
     font-weight: 600;
     line-height: 1.4;
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: var(--gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -94,7 +101,7 @@ header h1 {
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #48bb78;
+    border-left: 4px solid var(--primary-color-1);
 }
 
 .definition p {
@@ -137,7 +144,7 @@ header h1 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: var(--gradient);
     color: white;
 }
 
@@ -148,13 +155,13 @@ header h1 {
 
 .btn-secondary {
     background: #f8f9fa;
-    color: #48bb78;
-    border: 2px solid #48bb78;
+    color: var(--primary-color-1);
+    border: 2px solid var(--primary-color-1);
     display: block;
 }
 
 .btn-secondary:hover {
-    background: #48bb78;
+    background: var(--primary-color-1);
     color: white;
     transform: translateY(-2px);
 }

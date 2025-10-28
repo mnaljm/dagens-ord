@@ -7,7 +7,8 @@ En Chrome extension der viser "dagens ord" fra ordnet.dk direkte i din browser.
 - 📚 Viser dagens ord fra ordnet.dk
 - 🔍 Link til at slå udtrykket op
 - 📖 Vis/skjul detaljeret forklaring
-- 🎨 Moderne og responsivt design
+- 🎨 Tilpasselige farvegradienter med HEX-koder og farvevælger
+- 🌈 8 forudindstillede farvetemaer
 - ⚡ Hurtig og let at bruge
 
 ## Installation
@@ -84,6 +85,14 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 3. Klik "Se forklaring" for at læse den detaljerede baggrund
 4. Klik "Slå op" for at åbne ordnet.dk siden
 
+### Tilpasning af farver
+
+1. Højreklik på extension ikonet og vælg "Options" (eller gå til chrome://extensions/ og klik "Details" → "Extension options")
+2. Brug farvevælgeren eller indtast HEX-koder direkte (#ff0000)
+3. Vælg gradient retning (diagonal, vandret, lodret)
+4. Prøv de 8 forudindstillede temaer
+5. Klik "Gem indstillinger" for at anvende ændringerne
+
 ## Teknisk information
 
 ### Filer:
@@ -96,6 +105,7 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 
 ### Permissions:
 
+- `storage` - For at gemme brugerens farveindstillinger
 - `https://ordnet.dk/*` - For at kunne hente data fra ordnet.dk
 
 ## Problemløsning

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dagens Ord - Indstillinger</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dagens Ord Indstillinger</h1>
+            <p>Tilpas farverne til din smag</p>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>Farve Gradient</h2>
+                <p>Vælg to farver til at skabe din personlige gradient</p>
+                
+                <div class="color-controls">
+                    <div class="color-input-group">
+                        <label for="color1">Første farve:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="color1" value="#48bb78">
+                            <input type="text" id="color1-hex" value="#48bb78" maxlength="7" placeholder="#000000">
+                        </div>
+                    </div>
+                    
+                    <div class="color-input-group">
+                        <label for="color2">Anden farve:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="color2" value="#38a169">
+                            <input type="text" id="color2-hex" value="#38a169" maxlength="7" placeholder="#000000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gradient-direction">
+                    <label for="gradient-angle">Gradient retning:</label>
+                    <select id="gradient-angle">
+                        <option value="135deg">Diagonal (standard)</option>
+                        <option value="0deg">Vandret →</option>
+                        <option value="90deg">Lodret ↓</option>
+                        <option value="45deg">Diagonal ↘</option>
+                        <option value="180deg">Vandret ←</option>
+                        <option value="270deg">Lodret ↑</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Forhåndsvisning</h2>
+                <div class="preview-container">
+                    <div id="preview" class="preview-popup">
+                        <div class="preview-header">
+                            <h3>Dagens Ord</h3>
+                            <span>fra ordnet.dk</span>
+                        </div>
+                        <div class="preview-content">
+                            <h4>gå for lud og koldt vand</h4>
+                            <p>være forsømt (og overladt til sig selv)</p>
+                            <div class="preview-buttons">
+                                <button class="btn-primary">Se forklaring</button>
+                                <button class="btn-secondary">Slå op</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Forudindstillede temaer</h2>
+                <div class="preset-themes">
+                    <button class="theme-btn" data-color1="#48bb78" data-color2="#38a169">🌿 Grøn (standard)</button>
+                    <button class="theme-btn" data-color1="#667eea" data-color2="#764ba2">💜 Lilla</button>
+                    <button class="theme-btn" data-color1="#ff6b6b" data-color2="#ee5a24">🔥 Rød</button>
+                    <button class="theme-btn" data-color1="#4ecdc4" data-color2="#44a08d">🌊 Blå-grøn</button>
+                    <button class="theme-btn" data-color1="#ffa726" data-color2="#fb8c00">🟠 Orange</button>
+                    <button class="theme-btn" data-color1="#6c5ce7" data-color2="#a29bfe">🔮 Indigo</button>
+                    <button class="theme-btn" data-color1="#fd79a8" data-color2="#e84393">🌸 Pink</button>
+                    <button class="theme-btn" data-color1="#636e72" data-color2="#2d3436">🖤 Grå</button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="save-btn" class="save-button">Gem indstillinger</button>
+                <button id="reset-btn" class="reset-button">Nulstil til standard</button>
+            </div>
+
+            <div id="status" class="status-message"></div>
+        </div>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+</html>

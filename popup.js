@@ -15,6 +15,7 @@ let explanationVisible = false;
 
 // Initialize the extension
 document.addEventListener('DOMContentLoaded', () => {
+    loadColorSettings();
     fetchDagensOrd();
     
     // Event listeners
@@ -130,3 +131,30 @@ function showError() {
 function hideError() {
     errorElement.style.display = 'none';
 }
+
+// Load and apply color settings
+function loadColorSettings() {
+    chrome.storage.sync.get(['colorSettings'], (result) => {
+        if (result.colorSettings) {
+            applyColorSettings(result.colorSettings);
+        }
+    });
+}
+
+// Apply color settings to the popup
+function applyColorSettings(settings) {
+    // Update CSS custom properties
+    document.documentElement.style.setProperty('--primary-color-1', settings.color1);
+    document.documentElement.style.setProperty('--primary-color-2', settings.color2);
+    document.documentElement.style.setProperty('--gradient-angle', settings.angle);
+    document.documentElement.style.setProperty('--gradient', 
+        `linear-gradient(${settings.angle}, ${settings.color1} 0%, ${settings.color2} 100%)`
+    );
+}
+
+// Listen for color setting updates
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'colorSettingsUpdated') {
+        applyColorSettings(message.settings);
+    }
+});
