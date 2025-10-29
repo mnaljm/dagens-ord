@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Dagens Ord",
-  "version": "1.0.0",
+  "version": "1.4.1",
   "description": "Vis dagens ord fra ordnet.dk",
   "permissions": ["storage"],
   "host_permissions": [
