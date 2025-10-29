@@ -9,6 +9,7 @@ const explanationText = document.getElementById('explanation-text');
 const toggleButton = document.getElementById('toggle-explanation');
 const lookupLink = document.getElementById('lookup-link');
 const retryButton = document.getElementById('retry-btn');
+const settingsButton = document.getElementById('settings-btn');
 
 // State
 let explanationVisible = false;
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     toggleButton.addEventListener('click', toggleExplanation);
     retryButton.addEventListener('click', fetchDagensOrd);
+    settingsButton.addEventListener('click', openSettings);
 });
 
 // Fetch dagens ord from ordnet.dk
@@ -158,3 +160,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         applyColorSettings(message.settings);
     }
 });
+
+// Open settings page
+function openSettings() {
+    chrome.runtime.openOptionsPage();
+}
