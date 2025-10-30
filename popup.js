@@ -175,7 +175,7 @@ function applyThemeMode(theme) {
 // Listen for system theme changes
 if (window.matchMedia) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addListener(() => {
+    mediaQuery.addEventListener('change', () => {
         // Re-check if current setting is system and apply accordingly
         chrome.storage.sync.get(['colorSettings'], (result) => {
             if (result.colorSettings && result.colorSettings.theme === 'system') {
