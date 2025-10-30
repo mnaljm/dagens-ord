@@ -152,6 +152,37 @@ function applyColorSettings(settings) {
     document.documentElement.style.setProperty('--gradient', 
         `linear-gradient(${settings.angle}, ${settings.color1} 0%, ${settings.color2} 100%)`
     );
+    
+    // Apply theme
+    applyThemeMode(settings.theme || 'system');
+}
+
+function applyThemeMode(theme) {
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else if (theme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+    } else if (theme === 'system') {
+        // Use system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+    }
+}
+
+// Listen for system theme changes
+if (window.matchMedia) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', () => {
+        // Re-check if current setting is system and apply accordingly
+        chrome.storage.sync.get(['colorSettings'], (result) => {
+            if (result.colorSettings && result.colorSettings.theme === 'system') {
+                applyThemeMode('system');
+            }
+        });
+    });
 }
 
 // Listen for color setting updates

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const color1HexInput = document.getElementById('color1-hex');
     const color2HexInput = document.getElementById('color2-hex');
     const gradientAngleSelect = document.getElementById('gradient-angle');
+    const themeSelect = document.getElementById('theme-select');
     const previewElement = document.getElementById('preview');
     const saveButton = document.getElementById('save-btn');
     const resetButton = document.getElementById('reset-btn');
@@ -15,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultColors = {
         color1: '#48bb78',
         color2: '#38a169',
-        angle: '135deg'
+        angle: '135deg',
+        theme: 'system'
     };
 
     // Load saved settings
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     color1HexInput.addEventListener('input', onColor1HexChange);
     color2HexInput.addEventListener('input', onColor2HexChange);
     gradientAngleSelect.addEventListener('change', updatePreview);
+    themeSelect.addEventListener('change', onThemeChange);
     saveButton.addEventListener('click', saveSettings);
     resetButton.addEventListener('click', resetSettings);
 
@@ -61,6 +64,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isValidHexColor(hex) {
         return /^#[0-9A-F]{6}$/i.test(hex);
+    }
+
+    function onThemeChange() {
+        const theme = themeSelect.value;
+        applyThemeMode(theme);
+        updatePreview();
+    }
+
+    function applyThemeMode(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (theme === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+        } else if (theme === 'system') {
+            // Use system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }
+    }
+
+    // Listen for system theme changes
+    if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', () => {
+            if (themeSelect.value === 'system') {
+                applyThemeMode('system');
+                updatePreview();
+            }
+        });
     }
 
     function updatePreview() {
@@ -112,13 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const settings = {
             color1: color1Input.value,
             color2: color2Input.value,
-            angle: gradientAngleSelect.value
+            angle: gradientAngleSelect.value,
+            theme: themeSelect.value
         };
 
         chrome.storage.sync.set({ colorSettings: settings }, () => {
             showStatus('Indstillinger gemt!', 'success');
             
-            // Send message to popup to update colors
+            // Send message to popup to update colors and theme
             chrome.runtime.sendMessage({
                 type: 'colorSettingsUpdated',
                 settings: settings
@@ -135,7 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             color1HexInput.value = settings.color1.toUpperCase();
             color2HexInput.value = settings.color2.toUpperCase();
             gradientAngleSelect.value = settings.angle;
+            themeSelect.value = settings.theme || 'system';
             
+            applyThemeMode(settings.theme || 'system');
             updatePreview();
             updateActiveTheme(settings);
         });
@@ -157,7 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
         color1HexInput.value = defaultColors.color1.toUpperCase();
         color2HexInput.value = defaultColors.color2.toUpperCase();
         gradientAngleSelect.value = defaultColors.angle;
+        themeSelect.value = defaultColors.theme;
         
+        applyThemeMode(defaultColors.theme);
         updatePreview();
         updateActiveTheme(defaultColors);
         showStatus('Indstillinger nulstillet til standard', 'success');
