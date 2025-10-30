@@ -3,6 +3,38 @@
     --primary-color-2: #38a169;
     --gradient-angle: 135deg;
     --gradient: linear-gradient(var(--gradient-angle), var(--primary-color-1) 0%, var(--primary-color-2) 100%);
+    
+    /* Light mode colors */
+    --text-color: #333;
+    --content-bg: white;
+    --content-shadow: rgba(0, 0, 0, 0.1);
+    --phrase-color: #2c3e50;
+    --definition-color: #555;
+    --explanation-bg: #e8f4fd;
+    --explanation-text: #2c3e50;
+    --explanation-border: #3498db;
+    --secondary-bg: #f8f9fa;
+    --secondary-text: var(--primary-color-1);
+    --error-bg: #fee;
+    --error-text: #d32f2f;
+    --loading-text: white;
+}
+
+[data-theme="dark"] {
+    /* Dark mode colors */
+    --text-color: #e0e0e0;
+    --content-bg: #2d2d2d;
+    --content-shadow: rgba(0, 0, 0, 0.3);
+    --phrase-color: #e0e0e0;
+    --definition-color: #b0b0b0;
+    --explanation-bg: rgba(52, 152, 219, 0.2);
+    --explanation-text: #e0e0e0;
+    --explanation-border: #3498db;
+    --secondary-bg: #3d3d3d;
+    --secondary-text: var(--primary-color-1);
+    --error-bg: rgba(231, 76, 60, 0.2);
+    --error-text: #ff6b6b;
+    --loading-text: white;
 }
 
 * {
@@ -14,11 +46,12 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--gradient);
-    color: #333;
+    color: var(--text-color);
     width: 400px;
     min-height: 300px;
     margin: 0;
     padding: 0;
+    transition: color 0.3s ease;
 }
 
 .container {
@@ -82,8 +115,9 @@ header h1 {
 .loading {
     text-align: center;
     padding: 40px 20px;
-    background: white;
-    color: #333;
+    background: var(--content-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
 }
 
 .spinner {
@@ -104,8 +138,9 @@ header h1 {
 .error {
     text-align: center;
     padding: 40px 20px;
-    color: #e74c3c;
-    background: white;
+    color: var(--error-text);
+    background: var(--content-bg);
+    transition: all 0.3s ease;
 }
 
 .error p {
@@ -115,8 +150,9 @@ header h1 {
 
 .content {
     padding: 20px;
-    background: white;
+    background: var(--content-bg);
     position: relative;
+    transition: background-color 0.3s ease;
 }
 
 .phrase {
@@ -125,41 +161,46 @@ header h1 {
 
 .phrase h2 {
     font-size: 20px;
-    color: #2c3e50;
+    color: var(--phrase-color);
     font-weight: 600;
     line-height: 1.4;
     background: var(--gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    transition: color 0.3s ease;
 }
 
 .definition {
     margin-bottom: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--secondary-bg);
     border-radius: 8px;
     border-left: 4px solid var(--primary-color-1);
+    transition: background-color 0.3s ease;
 }
 
 .definition p {
     font-size: 14px;
     line-height: 1.6;
-    color: #555;
+    color: var(--definition-color);
+    transition: color 0.3s ease;
 }
 
 .explanation {
     margin-bottom: 20px;
     padding: 15px;
-    background: #e8f4fd;
+    background: var(--explanation-bg);
     border-radius: 8px;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid var(--explanation-border);
+    transition: background-color 0.3s ease;
 }
 
 .explanation p {
     font-size: 13px;
     line-height: 1.6;
-    color: #2c3e50;
+    color: var(--explanation-text);
+    transition: color 0.3s ease;
 }
 
 .actions {
@@ -192,10 +233,11 @@ header h1 {
 }
 
 .btn-secondary {
-    background: #f8f9fa;
-    color: var(--primary-color-1);
+    background: var(--secondary-bg);
+    color: var(--secondary-text);
     border: 2px solid var(--primary-color-1);
     display: block;
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
