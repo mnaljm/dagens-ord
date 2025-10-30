@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen for system theme changes
     if (window.matchMedia) {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        mediaQuery.addListener(() => {
+        mediaQuery.addEventListener('change', () => {
             if (themeSelect.value === 'system') {
                 applyThemeMode('system');
                 updatePreview();
