@@ -1,6 +1,6 @@
 :root {
-    --primary-color-1: #48bb78;
-    --primary-color-2: #38a169;
+    --primary-color-1: #b5c99a;
+    --primary-color-2: #97A97C;
     --gradient-angle: 135deg;
     --gradient: linear-gradient(var(--gradient-angle), var(--primary-color-1) 0%, var(--primary-color-2) 100%);
     

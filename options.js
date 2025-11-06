@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Default colors
     const defaultColors = {
-        color1: '#48bb78',
-        color2: '#38a169',
+        color1: '#b5c99a',
+        color2: '#97A97C',
         angle: '135deg',
         theme: 'system'
     };
