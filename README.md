@@ -7,8 +7,8 @@ En Chrome extension der viser "dagens ord" fra ordnet.dk direkte i din browser.
 - 📚 Viser dagens ord fra ordnet.dk
 - 🔍 Link til at slå udtrykket op
 - 📖 Vis/skjul detaljeret forklaring
-- 🎨 Tilpasselige farvegradienter med HEX-koder og farvevælger
 - 🌈 8 forudindstillede farvetemaer
+- 🎨 Tilpasselige farvegradienter med HEX-koder og farvevælger
 - ⚡ Hurtig og let at bruge
 
 ## Installation
