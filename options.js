@@ -217,9 +217,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load and display saved words
     function loadSavedWords() {
-        chrome.storage.sync.get(['savedWords'], (result) => {
-            const savedWords = result.savedWords || [];
-            renderSavedWords(savedWords);
+        chrome.storage.local.get(['savedWords', 'savedWordsMigrated'], (localResult) => {
+            if (chrome.runtime.lastError) {
+                console.error('Error loading savedWords:', chrome.runtime.lastError);
+                return;
+            }
+            if (localResult.savedWordsMigrated) {
+                renderSavedWords(localResult.savedWords || []);
+                return;
+            }
+            chrome.storage.sync.get(['savedWords'], (syncResult) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error reading sync savedWords:', chrome.runtime.lastError);
+                    renderSavedWords([]);
+                    return;
+                }
+                const words = syncResult.savedWords || localResult.savedWords || [];
+                chrome.storage.local.set({ savedWords: words, savedWordsMigrated: true }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error migrating savedWords:', chrome.runtime.lastError);
+                    } else if (syncResult.savedWords && syncResult.savedWords.length > 0) {
+                        chrome.storage.sync.remove('savedWords');
+                    }
+                    renderSavedWords(words);
+                });
+            });
         });
     }
 
@@ -241,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="saved-word-definition">${escapeHtml(word.definition)}</span>
                 </div>
                 <div class="saved-word-meta">
-                    <a class="saved-word-link" target="_blank" title="Slå op">
+                    <a class="saved-word-link" title="Slå op" rel="noopener noreferrer">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                             <polyline points="15 3 21 3 21 9"></polyline>
@@ -267,8 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = item.querySelector('.saved-word-link');
             if (isSafeUrl(word.url)) {
                 link.setAttribute('href', word.url);
+                link.setAttribute('target', '_blank');
             } else {
-                link.setAttribute('href', '#');
+                link.removeAttribute('href');
+                link.removeAttribute('target');
+                link.setAttribute('aria-disabled', 'true');
+                link.tabIndex = -1;
             }
             item.querySelector('.delete-saved-btn').addEventListener('click', () => {
                 deleteSavedWord(word.phrase);
@@ -277,18 +303,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteSavedWord(phrase) {
-        chrome.storage.sync.get(['savedWords'], (result) => {
+        chrome.storage.local.get(['savedWords'], (result) => {
             const savedWords = (result.savedWords || []).filter(w => w.phrase !== phrase);
-            chrome.storage.sync.set({ savedWords }, () => {
-                renderSavedWords(savedWords);
+            chrome.storage.local.set({ savedWords }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error deleting word:', chrome.runtime.lastError);
+                } else {
+                    renderSavedWords(savedWords);
+                }
             });
         });
     }
 
     function clearAllSavedWords() {
         if (!window.confirm('Er du sikker på, at du vil slette alle gemte ord?')) return;
-        chrome.storage.sync.set({ savedWords: [] }, () => {
-            renderSavedWords([]);
+        chrome.storage.local.set({ savedWords: [] }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('Error clearing words:', chrome.runtime.lastError);
+            } else {
+                renderSavedWords([]);
+            }
         });
     }
 
