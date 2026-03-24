@@ -293,7 +293,7 @@ select:focus {
 }
 
 .btn-secondary {
-    background: #f8f9fa;
+    background: var(--button-bg);
     color: #b5c99a;
     border: 2px solid #b5c99a;
 }

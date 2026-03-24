@@ -20,6 +20,7 @@ let isSavingWord = false;
 // Initialize the extension
 document.addEventListener('DOMContentLoaded', () => {
     loadColorSettings();
+    migrateSavedWords();
     fetchDagensOrd();
     
     // Event listeners
@@ -144,9 +145,12 @@ function hideError() {
 // Load and apply color settings
 function loadColorSettings() {
     chrome.storage.sync.get(['colorSettings'], (result) => {
-        if (result.colorSettings) {
-            applyColorSettings(result.colorSettings);
-        }
+        applyColorSettings(result.colorSettings || {
+            color1: '#b5c99a',
+            color2: '#97A97C',
+            angle: '135deg',
+            theme: 'system'
+        });
     });
 }
 
@@ -185,7 +189,7 @@ if (window.matchMedia) {
     mediaQuery.addEventListener('change', () => {
         // Re-check if current setting is system and apply accordingly
         chrome.storage.sync.get(['colorSettings'], (result) => {
-            if (result.colorSettings && result.colorSettings.theme === 'system') {
+            if (!result.colorSettings || result.colorSettings.theme === 'system') {
                 applyThemeMode('system');
             }
         });
@@ -204,25 +208,62 @@ function openSettings() {
     chrome.runtime.openOptionsPage();
 }
 
+// Migrate savedWords from sync to local storage on first run
+function migrateSavedWords() {
+    chrome.storage.local.get(['savedWordsMigrated'], (localResult) => {
+        if (chrome.runtime.lastError) {
+            console.error('Error checking migration status:', chrome.runtime.lastError);
+            return;
+        }
+        if (!localResult.savedWordsMigrated) {
+            chrome.storage.sync.get(['savedWords'], (syncResult) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error reading sync savedWords:', chrome.runtime.lastError);
+                    return;
+                }
+                const words = syncResult.savedWords || [];
+                chrome.storage.local.set({ savedWords: words, savedWordsMigrated: true }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error migrating savedWords:', chrome.runtime.lastError);
+                        return;
+                    }
+                    if (words.length > 0) {
+                        chrome.storage.sync.remove('savedWords');
+                    }
+                });
+            });
+        }
+    });
+}
+
 // Toggle save state for the current word
 function toggleSaveWord() {
     if (!currentWord || isSavingWord) return;
+    const wordToToggle = { ...currentWord };
     isSavingWord = true;
     
-    chrome.storage.sync.get(['savedWords'], (result) => {
+    chrome.storage.local.get(['savedWords'], (result) => {
         const savedWords = result.savedWords || [];
-        const index = savedWords.findIndex(w => w.phrase === currentWord.phrase);
+        const index = savedWords.findIndex(w => w.phrase === wordToToggle.phrase);
         
         if (index === -1) {
-            savedWords.push({ ...currentWord, savedAt: new Date().toISOString() });
-            chrome.storage.sync.set({ savedWords }, () => {
-                setSaveButtonSaved(true);
+            savedWords.push({ ...wordToToggle, savedAt: new Date().toISOString() });
+            chrome.storage.local.set({ savedWords }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error saving word:', chrome.runtime.lastError);
+                } else if (currentWord?.phrase === wordToToggle.phrase) {
+                    setSaveButtonSaved(true);
+                }
                 isSavingWord = false;
             });
         } else {
             savedWords.splice(index, 1);
-            chrome.storage.sync.set({ savedWords }, () => {
-                setSaveButtonSaved(false);
+            chrome.storage.local.set({ savedWords }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error removing word:', chrome.runtime.lastError);
+                } else if (currentWord?.phrase === wordToToggle.phrase) {
+                    setSaveButtonSaved(false);
+                }
                 isSavingWord = false;
             });
         }
@@ -236,10 +277,13 @@ function updateSaveButtonState(isSaved) {
         return;
     }
     if (!currentWord) return;
-    chrome.storage.sync.get(['savedWords'], (result) => {
+    const phrase = currentWord.phrase;
+    chrome.storage.local.get(['savedWords'], (result) => {
         const savedWords = result.savedWords || [];
-        const saved = savedWords.some(w => w.phrase === currentWord.phrase);
-        setSaveButtonSaved(saved);
+        const saved = savedWords.some(w => w.phrase === phrase);
+        if (currentWord?.phrase === phrase) {
+            setSaveButtonSaved(saved);
+        }
     });
 }
 
@@ -247,8 +291,10 @@ function setSaveButtonSaved(saved) {
     if (saved) {
         saveButton.classList.add('saved');
         saveButton.title = 'Fjern fra gemte ord';
+        saveButton.setAttribute('aria-label', 'Fjern fra gemte ord');
     } else {
         saveButton.classList.remove('saved');
         saveButton.title = 'Gem ord';
+        saveButton.setAttribute('aria-label', 'Gem ord');
     }
 }
