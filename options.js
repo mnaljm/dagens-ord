@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('reset-btn');
     const statusMessage = document.getElementById('status');
     const themeButtons = document.querySelectorAll('.theme-btn');
+    const clearSavedButton = document.getElementById('clear-saved-btn');
 
     // Default colors
     const defaultColors = {
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load saved settings
     loadSettings();
+    loadSavedWords();
 
     // Event listeners
     color1Input.addEventListener('input', onColor1Change);
@@ -32,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeSelect.addEventListener('change', onThemeChange);
     saveButton.addEventListener('click', saveSettings);
     resetButton.addEventListener('click', resetSettings);
+    clearSavedButton.addEventListener('click', clearAllSavedWords);
 
     // Theme button listeners
     themeButtons.forEach(btn => {
@@ -210,6 +213,99 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             statusMessage.classList.remove('show');
         }, 3000);
+    }
+
+    // Load and display saved words
+    function loadSavedWords() {
+        chrome.storage.sync.get(['savedWords'], (result) => {
+            const savedWords = result.savedWords || [];
+            renderSavedWords(savedWords);
+        });
+    }
+
+    function renderSavedWords(savedWords) {
+        const list = document.getElementById('saved-words-list');
+        const actionsDiv = document.getElementById('saved-words-actions');
+
+        if (savedWords.length === 0) {
+            list.innerHTML = '<p class="no-saved-words">Du har ikke gemt nogen ord endnu.</p>';
+            actionsDiv.style.display = 'none';
+            return;
+        }
+
+        actionsDiv.style.display = 'block';
+        list.innerHTML = savedWords.map((word) => `
+            <div class="saved-word-item">
+                <div class="saved-word-info">
+                    <span class="saved-word-phrase">${escapeHtml(word.phrase)}</span>
+                    <span class="saved-word-definition">${escapeHtml(word.definition)}</span>
+                </div>
+                <div class="saved-word-meta">
+                    <a class="saved-word-link" target="_blank" title="Slå op">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                    <button class="delete-saved-btn" title="Slet">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        const items = list.querySelectorAll('.saved-word-item');
+        items.forEach((item, index) => {
+            const word = savedWords[index];
+            const link = item.querySelector('.saved-word-link');
+            if (isSafeUrl(word.url)) {
+                link.setAttribute('href', word.url);
+            } else {
+                link.setAttribute('href', '#');
+            }
+            item.querySelector('.delete-saved-btn').addEventListener('click', () => {
+                deleteSavedWord(word.phrase);
+            });
+        });
+    }
+
+    function deleteSavedWord(phrase) {
+        chrome.storage.sync.get(['savedWords'], (result) => {
+            const savedWords = (result.savedWords || []).filter(w => w.phrase !== phrase);
+            chrome.storage.sync.set({ savedWords }, () => {
+                renderSavedWords(savedWords);
+            });
+        });
+    }
+
+    function clearAllSavedWords() {
+        if (!window.confirm('Er du sikker på, at du vil slette alle gemte ord?')) return;
+        chrome.storage.sync.set({ savedWords: [] }, () => {
+            renderSavedWords([]);
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function isSafeUrl(url) {
+        try {
+            const parsed = new URL(url);
+            return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+        } catch (_) {
+            return false;
+        }
     }
 
     // Initialize preview
