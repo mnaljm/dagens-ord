@@ -10,9 +10,12 @@ const toggleButton = document.getElementById('toggle-explanation');
 const lookupLink = document.getElementById('lookup-link');
 const retryButton = document.getElementById('retry-btn');
 const settingsButton = document.getElementById('settings-btn');
+const saveButton = document.getElementById('save-btn');
 
 // State
 let explanationVisible = false;
+let currentWord = null;
+let isSavingWord = false;
 
 // Initialize the extension
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleButton.addEventListener('click', toggleExplanation);
     retryButton.addEventListener('click', fetchDagensOrd);
     settingsButton.addEventListener('click', openSettings);
+    saveButton.addEventListener('click', toggleSaveWord);
 });
 
 // Fetch dagens ord from ordnet.dk
@@ -91,6 +95,9 @@ function displayContent(phrase, definition, explanation, lookupUrl) {
     }
     
     lookupLink.href = lookupUrl;
+    
+    currentWord = { phrase, definition, explanation, url: lookupUrl };
+    updateSaveButtonState();
     
     hideLoading();
     hideError();
@@ -195,4 +202,53 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Open settings page
 function openSettings() {
     chrome.runtime.openOptionsPage();
+}
+
+// Toggle save state for the current word
+function toggleSaveWord() {
+    if (!currentWord || isSavingWord) return;
+    isSavingWord = true;
+    
+    chrome.storage.sync.get(['savedWords'], (result) => {
+        const savedWords = result.savedWords || [];
+        const index = savedWords.findIndex(w => w.phrase === currentWord.phrase);
+        
+        if (index === -1) {
+            savedWords.push({ ...currentWord, savedAt: new Date().toISOString() });
+            chrome.storage.sync.set({ savedWords }, () => {
+                setSaveButtonSaved(true);
+                isSavingWord = false;
+            });
+        } else {
+            savedWords.splice(index, 1);
+            chrome.storage.sync.set({ savedWords }, () => {
+                setSaveButtonSaved(false);
+                isSavingWord = false;
+            });
+        }
+    });
+}
+
+// Update the save button to reflect whether the current word is saved
+function updateSaveButtonState(isSaved) {
+    if (isSaved !== undefined) {
+        setSaveButtonSaved(isSaved);
+        return;
+    }
+    if (!currentWord) return;
+    chrome.storage.sync.get(['savedWords'], (result) => {
+        const savedWords = result.savedWords || [];
+        const saved = savedWords.some(w => w.phrase === currentWord.phrase);
+        setSaveButtonSaved(saved);
+    });
+}
+
+function setSaveButtonSaved(saved) {
+    if (saved) {
+        saveButton.classList.add('saved');
+        saveButton.title = 'Fjern fra gemte ord';
+    } else {
+        saveButton.classList.remove('saved');
+        saveButton.title = 'Gem ord';
+    }
 }

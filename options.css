@@ -404,6 +404,122 @@ select:focus {
     border: 1px solid rgba(231, 76, 60, 0.4);
 }
 
+/* Saved words section */
+.no-saved-words {
+    color: #7f8c8d;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.saved-word-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: var(--input-bg);
+    transition: all 0.2s ease;
+}
+
+.saved-word-item:hover {
+    border-color: #b5c99a;
+    box-shadow: 0 2px 8px var(--preview-shadow);
+}
+
+.saved-word-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.saved-word-phrase {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-color);
+    background: linear-gradient(135deg, #b5c99a 0%, #97A97C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.saved-word-definition {
+    font-size: 12px;
+    color: #7f8c8d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+}
+
+.saved-word-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.saved-word-link,
+.delete-saved-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.saved-word-link {
+    background: var(--button-bg);
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.saved-word-link:hover {
+    background: #b5c99a;
+    color: white;
+}
+
+.delete-saved-btn {
+    background: var(--button-bg);
+    color: #e74c3c;
+}
+
+.delete-saved-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+.saved-words-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.clear-saved-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #e74c3c;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.clear-saved-button:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
     .container {
