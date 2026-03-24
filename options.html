@@ -14,6 +14,17 @@
         </header>
 
         <div class="content">
+            <div class="section" id="saved-words-section">
+                <h2>Gemte Ord</h2>
+                <p>Ord du har gemt fra dagens ord</p>
+                <div id="saved-words-list">
+                    <p class="no-saved-words">Du har ikke gemt nogen ord endnu.</p>
+                </div>
+                <div class="saved-words-actions" id="saved-words-actions" style="display: none;">
+                    <button id="clear-saved-btn" class="clear-saved-button">Slet alle gemte ord</button>
+                </div>
+            </div>
+
             <div class="section">
                 <h2>Farve Gradient</h2>
                 <p>Vælg to farver til at skabe din personlige gradient</p>
@@ -22,30 +33,41 @@
                     <div class="color-input-group">
                         <label for="color1">Første farve:</label>
                         <div class="color-picker-wrapper">
-                            <input type="color" id="color1" value="#48bb78">
-                            <input type="text" id="color1-hex" value="#48bb78" maxlength="7" placeholder="#000000">
+                            <input type="color" id="color1" value="#b5c99a">
+                            <input type="text" id="color1-hex" value="#b5c99a" maxlength="7" placeholder="#000000" aria-label="Hexkode for første farve">
                         </div>
                     </div>
                     
                     <div class="color-input-group">
                         <label for="color2">Anden farve:</label>
                         <div class="color-picker-wrapper">
-                            <input type="color" id="color2" value="#38a169">
-                            <input type="text" id="color2-hex" value="#38a169" maxlength="7" placeholder="#000000">
+                            <input type="color" id="color2" value="#97A97C">
+                            <input type="text" id="color2-hex" value="#97A97C" maxlength="7" placeholder="#000000" aria-label="Hexkode for anden farve">
                         </div>
                     </div>
                 </div>
 
-                <div class="gradient-direction">
-                    <label for="gradient-angle">Gradient retning:</label>
-                    <select id="gradient-angle">
-                        <option value="135deg">Diagonal (standard)</option>
-                        <option value="0deg">Vandret →</option>
-                        <option value="90deg">Lodret ↓</option>
-                        <option value="45deg">Diagonal ↘</option>
-                        <option value="180deg">Vandret ←</option>
-                        <option value="270deg">Lodret ↑</option>
-                    </select>
+                <div class="controls-row">
+                    <div class="gradient-direction">
+                        <label for="gradient-angle">Gradient retning:</label>
+                        <select id="gradient-angle">
+                            <option value="135deg">Diagonal (standard)</option>
+                            <option value="0deg">Vandret →</option>
+                            <option value="90deg">Lodret ↓</option>
+                            <option value="45deg">Diagonal ↘</option>
+                            <option value="180deg">Vandret ←</option>
+                            <option value="270deg">Lodret ↑</option>
+                        </select>
+                    </div>
+                    
+                    <div class="theme-toggle">
+                        <label for="theme-select">Tema:</label>
+                        <select id="theme-select">
+                            <option value="system">🖥️ System standard</option>
+                            <option value="light">☀️ Lys tilstand</option>
+                            <option value="dark">🌙 Mørk tilstand</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

@@ -5,21 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const color1HexInput = document.getElementById('color1-hex');
     const color2HexInput = document.getElementById('color2-hex');
     const gradientAngleSelect = document.getElementById('gradient-angle');
+    const themeSelect = document.getElementById('theme-select');
     const previewElement = document.getElementById('preview');
     const saveButton = document.getElementById('save-btn');
     const resetButton = document.getElementById('reset-btn');
     const statusMessage = document.getElementById('status');
     const themeButtons = document.querySelectorAll('.theme-btn');
+    const clearSavedButton = document.getElementById('clear-saved-btn');
 
     // Default colors
     const defaultColors = {
-        color1: '#48bb78',
-        color2: '#38a169',
-        angle: '135deg'
+        color1: '#b5c99a',
+        color2: '#97A97C',
+        angle: '135deg',
+        theme: 'system'
     };
 
     // Load saved settings
     loadSettings();
+    loadSavedWords();
 
     // Event listeners
     color1Input.addEventListener('input', onColor1Change);
@@ -27,8 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
     color1HexInput.addEventListener('input', onColor1HexChange);
     color2HexInput.addEventListener('input', onColor2HexChange);
     gradientAngleSelect.addEventListener('change', updatePreview);
+    themeSelect.addEventListener('change', onThemeChange);
     saveButton.addEventListener('click', saveSettings);
     resetButton.addEventListener('click', resetSettings);
+    clearSavedButton.addEventListener('click', clearAllSavedWords);
 
     // Theme button listeners
     themeButtons.forEach(btn => {
@@ -61,6 +67,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isValidHexColor(hex) {
         return /^#[0-9A-F]{6}$/i.test(hex);
+    }
+
+    function onThemeChange() {
+        const theme = themeSelect.value;
+        applyThemeMode(theme);
+        updatePreview();
+    }
+
+    function applyThemeMode(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (theme === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+        } else if (theme === 'system') {
+            // Use system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }
+    }
+
+    // Listen for system theme changes
+    if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', () => {
+            if (themeSelect.value === 'system') {
+                applyThemeMode('system');
+                updatePreview();
+            }
+        });
     }
 
     function updatePreview() {
@@ -112,13 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const settings = {
             color1: color1Input.value,
             color2: color2Input.value,
-            angle: gradientAngleSelect.value
+            angle: gradientAngleSelect.value,
+            theme: themeSelect.value
         };
 
         chrome.storage.sync.set({ colorSettings: settings }, () => {
             showStatus('Indstillinger gemt!', 'success');
             
-            // Send message to popup to update colors
+            // Send message to popup to update colors and theme
             chrome.runtime.sendMessage({
                 type: 'colorSettingsUpdated',
                 settings: settings
@@ -135,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
             color1HexInput.value = settings.color1.toUpperCase();
             color2HexInput.value = settings.color2.toUpperCase();
             gradientAngleSelect.value = settings.angle;
+            themeSelect.value = settings.theme || 'system';
             
+            applyThemeMode(settings.theme || 'system');
             updatePreview();
             updateActiveTheme(settings);
         });
@@ -157,7 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
         color1HexInput.value = defaultColors.color1.toUpperCase();
         color2HexInput.value = defaultColors.color2.toUpperCase();
         gradientAngleSelect.value = defaultColors.angle;
+        themeSelect.value = defaultColors.theme;
         
+        applyThemeMode(defaultColors.theme);
         updatePreview();
         updateActiveTheme(defaultColors);
         showStatus('Indstillinger nulstillet til standard', 'success');
@@ -170,6 +213,133 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             statusMessage.classList.remove('show');
         }, 3000);
+    }
+
+    // Load and display saved words
+    function loadSavedWords() {
+        chrome.storage.local.get(['savedWords', 'savedWordsMigrated'], (localResult) => {
+            if (chrome.runtime.lastError) {
+                console.error('Error loading savedWords:', chrome.runtime.lastError);
+                return;
+            }
+            if (localResult.savedWordsMigrated) {
+                renderSavedWords(localResult.savedWords || []);
+                return;
+            }
+            chrome.storage.sync.get(['savedWords'], (syncResult) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error reading sync savedWords:', chrome.runtime.lastError);
+                    renderSavedWords([]);
+                    return;
+                }
+                const words = syncResult.savedWords || localResult.savedWords || [];
+                chrome.storage.local.set({ savedWords: words, savedWordsMigrated: true }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error migrating savedWords:', chrome.runtime.lastError);
+                    } else if (syncResult.savedWords && syncResult.savedWords.length > 0) {
+                        chrome.storage.sync.remove('savedWords');
+                    }
+                    renderSavedWords(words);
+                });
+            });
+        });
+    }
+
+    function renderSavedWords(savedWords) {
+        const list = document.getElementById('saved-words-list');
+        const actionsDiv = document.getElementById('saved-words-actions');
+
+        if (savedWords.length === 0) {
+            list.innerHTML = '<p class="no-saved-words">Du har ikke gemt nogen ord endnu.</p>';
+            actionsDiv.style.display = 'none';
+            return;
+        }
+
+        actionsDiv.style.display = 'block';
+        list.innerHTML = savedWords.map((word) => `
+            <div class="saved-word-item">
+                <div class="saved-word-info">
+                    <span class="saved-word-phrase">${escapeHtml(word.phrase)}</span>
+                    <span class="saved-word-definition">${escapeHtml(word.definition)}</span>
+                </div>
+                <div class="saved-word-meta">
+                    <a class="saved-word-link" title="Slå op" rel="noopener noreferrer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                    <button class="delete-saved-btn" title="Slet">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        const items = list.querySelectorAll('.saved-word-item');
+        items.forEach((item, index) => {
+            const word = savedWords[index];
+            const link = item.querySelector('.saved-word-link');
+            if (isSafeUrl(word.url)) {
+                link.setAttribute('href', word.url);
+                link.setAttribute('target', '_blank');
+            } else {
+                link.removeAttribute('href');
+                link.removeAttribute('target');
+                link.setAttribute('aria-disabled', 'true');
+                link.tabIndex = -1;
+            }
+            item.querySelector('.delete-saved-btn').addEventListener('click', () => {
+                deleteSavedWord(word.phrase);
+            });
+        });
+    }
+
+    function deleteSavedWord(phrase) {
+        chrome.storage.local.get(['savedWords'], (result) => {
+            const savedWords = (result.savedWords || []).filter(w => w.phrase !== phrase);
+            chrome.storage.local.set({ savedWords }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error deleting word:', chrome.runtime.lastError);
+                } else {
+                    renderSavedWords(savedWords);
+                }
+            });
+        });
+    }
+
+    function clearAllSavedWords() {
+        if (!window.confirm('Er du sikker på, at du vil slette alle gemte ord?')) return;
+        chrome.storage.local.set({ savedWords: [] }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('Error clearing words:', chrome.runtime.lastError);
+            } else {
+                renderSavedWords([]);
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function isSafeUrl(url) {
+        try {
+            const parsed = new URL(url);
+            return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+        } catch (_) {
+            return false;
+        }
     }
 
     // Initialize preview
