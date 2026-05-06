@@ -1,10 +1,10 @@
 # Dagens Ord - Chrome Extension
 
-En Chrome extension der viser "dagens ord" fra ordnet.dk direkte i din browser.
+En Chrome extension der viser "dagens ord" fra ny.ordnet.dk direkte i din browser.
 
 ## Features
 
-- 📚 Viser dagens ord fra ordnet.dk
+- 📚 Viser dagens ord fra ny.ordnet.dk
 - 🔍 Link til at slå udtrykket op
 - 📖 Vis/skjul detaljeret forklaring
 - 🌈 8 forudindstillede farvetemaer
@@ -83,7 +83,7 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 1. Klik på extension ikonet i Chrome toolbar
 2. Se dagens ord med definition
 3. Klik "Se forklaring" for at læse den detaljerede baggrund
-4. Klik "Slå op" for at åbne ordnet.dk siden
+4. Klik "Slå op" for at åbne ny.ordnet.dk siden
 
 ### Tilpasning af farver
 
@@ -106,11 +106,11 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 ### Permissions:
 
 - `storage` - For at gemme brugerens farveindstillinger
-- `https://ordnet.dk/*` - For at kunne hente data fra ordnet.dk
+- `https://ny.ordnet.dk/*` og `https://ordnet.dk/*` - For at kunne hente data fra ny.ordnet.dk
 
 ## Problemløsning
 
-**Problem**: Extension kan ikke hente data fra ordnet.dk
+**Problem**: Extension kan ikke hente data fra ny.ordnet.dk
 **Løsning**: Dette kan skyldes CORS restriktioner. Chrome extensions har normalt adgang til cross-origin requests, men hvis der opstår problemer, kan du prøve at:
 
 1. Genindlæse extension i `chrome://extensions/`

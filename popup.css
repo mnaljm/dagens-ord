@@ -1,6 +1,7 @@
 :root {
     --primary-color-1: #b5c99a;
     --primary-color-2: #97A97C;
+    --bookmark-color: #e74c3c;
     --gradient-angle: 135deg;
     --gradient: linear-gradient(var(--gradient-angle), var(--primary-color-1) 0%, var(--primary-color-2) 100%);
     
@@ -59,6 +60,37 @@ body {
     min-height: 300px;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+}
+
+.bookmark-wrapper {
+    position: absolute;
+    top: -2px;
+    left: 24px;
+    z-index: 100;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bookmark-wrapper:hover {
+    transform: translateY(6px);
+}
+
+.bookmark-ribbon {
+    width: 32px;
+    height: 52px;
+    background-color: var(--bookmark-color, #e74c3c);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 12px), 0 100%);
+    display: flex;
+    justify-content: center;
+    padding-top: 12px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.bookmark-ribbon svg {
+    margin-top: 2px;
 }
 
 header {

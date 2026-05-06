@@ -13,10 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeButtons = document.querySelectorAll('.theme-btn');
     const clearSavedButton = document.getElementById('clear-saved-btn');
 
+    const bookmarkColorInput = document.getElementById('bookmark-color');
+    const bookmarkColorHexInput = document.getElementById('bookmark-color-hex');
+
     // Default colors
     const defaultColors = {
         color1: '#b5c99a',
         color2: '#97A97C',
+        bookmarkColor: '#e74c3c',
         angle: '135deg',
         theme: 'system'
     };
@@ -28,8 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     color1Input.addEventListener('input', onColor1Change);
     color2Input.addEventListener('input', onColor2Change);
+    bookmarkColorInput.addEventListener('input', onBookmarkColorChange);
     color1HexInput.addEventListener('input', onColor1HexChange);
     color2HexInput.addEventListener('input', onColor2HexChange);
+    bookmarkColorHexInput.addEventListener('input', onBookmarkColorHexChange);
     gradientAngleSelect.addEventListener('change', updatePreview);
     themeSelect.addEventListener('change', onThemeChange);
     saveButton.addEventListener('click', saveSettings);
@@ -51,6 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     }
 
+    function onBookmarkColorChange() {
+        bookmarkColorHexInput.value = bookmarkColorInput.value.toUpperCase();
+        updatePreview();
+    }
+
     function onColor1HexChange() {
         if (isValidHexColor(color1HexInput.value)) {
             color1Input.value = color1HexInput.value;
@@ -61,6 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function onColor2HexChange() {
         if (isValidHexColor(color2HexInput.value)) {
             color2Input.value = color2HexInput.value;
+            updatePreview();
+        }
+    }
+
+    function onBookmarkColorHexChange() {
+        if (isValidHexColor(bookmarkColorHexInput.value)) {
+            bookmarkColorInput.value = bookmarkColorHexInput.value;
             updatePreview();
         }
     }
@@ -150,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const settings = {
             color1: color1Input.value,
             color2: color2Input.value,
+            bookmarkColor: bookmarkColorInput.value,
             angle: gradientAngleSelect.value,
             theme: themeSelect.value
         };
@@ -171,8 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             color1Input.value = settings.color1;
             color2Input.value = settings.color2;
+            bookmarkColorInput.value = settings.bookmarkColor || defaultColors.bookmarkColor;
             color1HexInput.value = settings.color1.toUpperCase();
             color2HexInput.value = settings.color2.toUpperCase();
+            bookmarkColorHexInput.value = (settings.bookmarkColor || defaultColors.bookmarkColor).toUpperCase();
             gradientAngleSelect.value = settings.angle;
             themeSelect.value = settings.theme || 'system';
             
@@ -195,8 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetSettings() {
         color1Input.value = defaultColors.color1;
         color2Input.value = defaultColors.color2;
+        bookmarkColorInput.value = defaultColors.bookmarkColor;
         color1HexInput.value = defaultColors.color1.toUpperCase();
         color2HexInput.value = defaultColors.color2.toUpperCase();
+        bookmarkColorHexInput.value = defaultColors.bookmarkColor.toUpperCase();
         gradientAngleSelect.value = defaultColors.angle;
         themeSelect.value = defaultColors.theme;
         

@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     retryButton.addEventListener('click', fetchDagensOrd);
     settingsButton.addEventListener('click', openSettings);
     saveButton.addEventListener('click', toggleSaveWord);
+    const savedWordsBookmark = document.getElementById('saved-words-bookmark');
+    if (savedWordsBookmark) {
+        savedWordsBookmark.addEventListener('click', () => {
+            chrome.runtime.openOptionsPage();
+        });
+    }
 });
 
 // Fetch dagens ord from ordnet.dk
@@ -35,11 +41,11 @@ async function fetchDagensOrd() {
     showLoading();
     
     try {
-        const response = await fetch('https://ordnet.dk/ddo', {
+        const response = await fetch('https://ny.ordnet.dk/api/kvikfeed/dagens-ord', {
             method: 'GET',
             headers: {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'Accept': 'application/json',
+                'api-key': '2d3921ea-c5cc-4d08-8be5-4c71c23c29f1'
             }
         });
         
@@ -47,32 +53,46 @@ async function fetchDagensOrd() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const html = await response.text();
+        const data = await response.json();
+        
         const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Find the dagens ord section
-        const dagensOrdElement = doc.querySelector('.dagensord');
-        
-        if (!dagensOrdElement) {
-            throw new Error('Kunne ikke finde dagens ord på siden');
-        }
+        const doc = parser.parseFromString(data.body, 'text/html');
         
         // Extract phrase
-        const phraseElement = dagensOrdElement.querySelector('.match');
-        const phrase = phraseElement ? phraseElement.textContent.trim() : 'Ikke fundet';
+        let phrase = data.lemma;
+        if (!phrase) {
+            const holem = doc.querySelector('Holem');
+            phrase = holem ? holem.textContent.trim() : 'Ikke fundet';
+        }
         
-        // Extract definition
-        const definitionElement = dagensOrdElement.querySelector('.definition');
-        const definition = definitionElement ? definitionElement.textContent.trim() : 'Definition ikke tilgængelig';
+        // Extract definition and part of speech
+        let lemklas = data.pos;
+        if (!lemklas) {
+            const lemklasEl = doc.querySelector('Lemklas');
+            if (lemklasEl) lemklas = lemklasEl.textContent.trim();
+        }
+        
+        const betydning = doc.querySelector('Betydning');
+        let definition = betydning ? betydning.textContent.trim() : 'Definition ikke tilgængelig';
+        if (lemklas && definition !== 'Definition ikke tilgængelig') {
+            definition = `${lemklas} — ${definition}`;
+        }
         
         // Extract explanation
-        const explanationDiv = dagensOrdElement.querySelector('#explanation');
-        const explanation = explanationDiv ? explanationDiv.textContent.trim() : '';
+        const explanation = data.secondary_body || '';
         
         // Extract lookup link
-        const readMoreLink = dagensOrdElement.querySelector('.read-more a');
-        const lookupUrl = readMoreLink ? readMoreLink.href : `https://ordnet.dk/ddo/ordbog?query=${encodeURIComponent(phrase)}`;
+        const aEl = doc.querySelector('a');
+        let lookupUrl = `https://ny.ordnet.dk/ddo/ordbog?query=${encodeURIComponent(phrase)}`;
+        if (aEl) {
+            const query = aEl.getAttribute('query');
+            const href = aEl.getAttribute('href');
+            if (query) {
+                lookupUrl = `https://ny.ordnet.dk/ddo/ordbog/${encodeURIComponent(query)}`;
+            } else if (href) {
+                lookupUrl = href.startsWith('http') ? href : `https://ny.ordnet.dk${href}`;
+            }
+        }
         
         // Display the content
         displayContent(phrase, definition, explanation, lookupUrl);
@@ -148,6 +168,7 @@ function loadColorSettings() {
         applyColorSettings(result.colorSettings || {
             color1: '#b5c99a',
             color2: '#97A97C',
+            bookmarkColor: '#e74c3c',
             angle: '135deg',
             theme: 'system'
         });
@@ -159,6 +180,7 @@ function applyColorSettings(settings) {
     // Update CSS custom properties
     document.documentElement.style.setProperty('--primary-color-1', settings.color1);
     document.documentElement.style.setProperty('--primary-color-2', settings.color2);
+    document.documentElement.style.setProperty('--bookmark-color', settings.bookmarkColor || '#e74c3c');
     document.documentElement.style.setProperty('--gradient-angle', settings.angle);
     document.documentElement.style.setProperty('--gradient', 
         `linear-gradient(${settings.angle}, ${settings.color1} 0%, ${settings.color2} 100%)`
