@@ -231,7 +231,8 @@ function migrateSavedWords() {
                     console.error('Error reading sync savedWords:', chrome.runtime.lastError);
                     return;
                 }
-                const words = normalizeSavedWords(syncResult.savedWords || localWords || []);
+                const syncWords = Array.isArray(syncResult.savedWords) ? syncResult.savedWords : localWords;
+                const words = normalizeSavedWords(syncWords);
                 chrome.storage.local.set({ savedWords: words, wordFolders: localFolders, savedWordsMigrated: true }, () => {
                     if (chrome.runtime.lastError) {
                         console.error('Error migrating savedWords:', chrome.runtime.lastError);

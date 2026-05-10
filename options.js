@@ -1,6 +1,7 @@
 // Options page functionality
 document.addEventListener('DOMContentLoaded', () => {
     const ALL_FOLDER_ID = 'all';
+    const MAX_FOLDER_NAME_LENGTH = 30;
     const DEFAULT_ALL_FOLDER = {
         id: ALL_FOLDER_ID,
         name: 'Alle gemte ord',
@@ -246,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return {
             id: String(folder.id),
-            name: String(folder.name).trim().slice(0, 30) || 'Mappe',
+            name: String(folder.name).trim().slice(0, MAX_FOLDER_NAME_LENGTH) || 'Mappe',
             color: isValidHexColor(folder.color) ? folder.color : '#97A97C',
             system: folder.id === ALL_FOLDER_ID || Boolean(folder.system)
         };
@@ -356,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const migratedWords = normalizeSavedWords(syncResult.savedWords || localWords || []);
+                const syncWords = Array.isArray(syncResult.savedWords) ? syncResult.savedWords : localWords;
+                const migratedWords = normalizeSavedWords(syncWords);
                 persistSavedWordState(migratedWords, localFolders, (error) => {
                     if (error) return;
                     if (syncResult.savedWords && syncResult.savedWords.length > 0) {
@@ -384,10 +386,10 @@ document.addEventListener('DOMContentLoaded', () => {
         folderListElement.innerHTML = currentFolders.map((folder) => {
             const deleteButton = folder.id === ALL_FOLDER_ID
                 ? ''
-                : `<button type="button" class="folder-pill-delete" data-folder-id="${escapeHtml(folder.id)}" title="Slet mappe">×</button>`;
+                : `<button type="button" class="folder-pill-delete" data-folder-id="${escapeAttribute(folder.id)}" title="Slet mappe">×</button>`;
 
             return `
-                <div class="folder-pill" title="${escapeHtml(folder.name)}">
+                <div class="folder-pill" title="${escapeAttribute(folder.name)}">
                     <span class="folder-pill-color" style="background:${escapeHtml(folder.color)}"></span>
                     <span>${escapeHtml(folder.name)}</span>
                     ${deleteButton}
@@ -397,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         folderFilterSelect.innerHTML = currentFolders.map((folder) => {
             const selected = folder.id === activeFolderId ? ' selected' : '';
-            return `<option value="${escapeHtml(folder.id)}"${selected}>${escapeHtml(folder.name)}</option>`;
+            return `<option value="${escapeAttribute(folder.id)}"${selected}>${escapeHtml(folder.name)}</option>`;
         }).join('');
 
         folderListElement.querySelectorAll('.folder-pill-delete').forEach((button) => {
@@ -433,8 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const newFolder = {
-            id: `folder-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            name: rawName.slice(0, 30),
+            id: createUniqueFolderId(),
+            name: rawName.slice(0, MAX_FOLDER_NAME_LENGTH),
             color,
             system: false
         };
@@ -513,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<div class="saved-word-folder-assignment">${customFolders.map((folder) => {
                     const isChecked = (word.folders || []).includes(folder.id) ? ' checked' : '';
                     return `<label class="saved-word-folder-option">
-                        <input class="saved-word-folder-checkbox" type="checkbox" data-folder-id="${escapeHtml(folder.id)}"${isChecked}>
+                        <input class="saved-word-folder-checkbox" type="checkbox" data-folder-id="${escapeAttribute(folder.id)}"${isChecked}>
                         <span class="saved-word-folder-color" style="background:${escapeHtml(folder.color)}"></span>
                         ${escapeHtml(folder.name)}
                     </label>`;
@@ -645,6 +647,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    function escapeAttribute(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function createUniqueFolderId() {
+        const generateId = () => {
+            if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+                return `folder-${globalThis.crypto.randomUUID()}`;
+            }
+            return `folder-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        };
+
+        let nextId = generateId();
+        while (currentFolders.some(folder => folder.id === nextId)) {
+            nextId = generateId();
+        }
+        return nextId;
     }
 
     function isSafeUrl(url) {
