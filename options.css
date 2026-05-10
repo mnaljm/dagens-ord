@@ -405,6 +405,98 @@ select:focus {
 }
 
 /* Saved words section */
+.folder-controls {
+    margin-bottom: 20px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--button-bg);
+}
+
+.new-folder-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+#new-folder-name {
+    flex: 1;
+    min-width: 0;
+}
+
+#new-folder-color {
+    width: 44px;
+    min-width: 44px;
+    height: 40px;
+}
+
+.add-folder-button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: linear-gradient(135deg, #b5c99a 0%, #97A97C 100%);
+    color: white;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.add-folder-button:hover {
+    transform: translateY(-1px);
+}
+
+.folder-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.folder-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: var(--input-bg);
+    font-size: 12px;
+}
+
+.folder-pill-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.folder-pill-delete {
+    border: none;
+    background: transparent;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+
+.folder-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.folder-filter label {
+    font-weight: 500;
+}
+
+.folder-filter select {
+    min-width: 220px;
+}
+
 .no-saved-words {
     color: #7f8c8d;
     font-style: italic;
@@ -414,8 +506,8 @@ select:focus {
 
 .saved-word-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -435,6 +527,12 @@ select:focus {
     gap: 4px;
     min-width: 0;
     flex: 1;
+}
+
+.saved-word-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .saved-word-phrase {
@@ -462,6 +560,42 @@ select:focus {
     align-items: center;
     flex-shrink: 0;
     margin-left: 12px;
+}
+
+.saved-word-folder-assignment {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+}
+
+.saved-word-folder-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.saved-word-folder-option input {
+    margin: 0;
+}
+
+.saved-word-folder-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.saved-word-folder-empty {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 12px;
+    color: #7f8c8d;
 }
 
 .saved-word-link,
@@ -550,5 +684,28 @@ select:focus {
     
     .preset-themes {
         grid-template-columns: 1fr;
+    }
+
+    .new-folder-form {
+        flex-wrap: wrap;
+    }
+
+    #new-folder-color {
+        order: 2;
+    }
+
+    .add-folder-button {
+        order: 3;
+        width: 100%;
+    }
+
+    .folder-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .folder-filter select {
+        min-width: 0;
+        width: 100%;
     }
 }

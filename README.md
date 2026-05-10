@@ -9,6 +9,8 @@ En Chrome extension der viser "dagens ord" fra ny.ordnet.dk direkte i din browse
 - 📖 Vis/skjul detaljeret forklaring
 - 🌈 8 forudindstillede farvetemaer
 - 🎨 Tilpasselige farvegradienter med HEX-koder og farvevælger
+- 🗂️ Mapper til gemte ord med individuelle farver via farvevælger
+- 📁 Fast "Alle gemte ord"-mappe, så hvert gemt ord altid findes ét sted
 - ⚡ Hurtig og let at bruge
 
 ## Installation
@@ -92,6 +94,14 @@ Du kan bruge denne simple HTML fil til at konvertere SVG til PNG:
 3. Vælg gradient retning (diagonal, vandret, lodret)
 4. Prøv de 8 forudindstillede temaer
 5. Klik "Gem indstillinger" for at anvende ændringerne
+
+### Gemte ord i mapper
+
+1. Gem ord fra popup-knappen
+2. Gå til "Options" for at oprette mapper med navn og farve
+3. Tildel hvert ord til én eller flere mapper (fx både "Sjov" og "Interessant")
+4. Brug filteret til at vise ord fra en bestemt mappe
+5. Mappen "Alle gemte ord" findes altid og indeholder alle gemte ord
 
 ## Teknisk information
 

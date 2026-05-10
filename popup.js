@@ -16,6 +16,13 @@ const saveButton = document.getElementById('save-btn');
 let explanationVisible = false;
 let currentWord = null;
 let isSavingWord = false;
+const ALL_FOLDER_ID = 'all';
+const DEFAULT_ALL_FOLDER = {
+    id: ALL_FOLDER_ID,
+    name: 'Alle gemte ord',
+    color: '#97A97C',
+    system: true
+};
 
 // Initialize the extension
 document.addEventListener('DOMContentLoaded', () => {
@@ -232,19 +239,23 @@ function openSettings() {
 
 // Migrate savedWords from sync to local storage on first run
 function migrateSavedWords() {
-    chrome.storage.local.get(['savedWordsMigrated'], (localResult) => {
+    chrome.storage.local.get(['savedWordsMigrated', 'savedWords', 'wordFolders'], (localResult) => {
         if (chrome.runtime.lastError) {
             console.error('Error checking migration status:', chrome.runtime.lastError);
             return;
         }
+        const localWords = normalizeSavedWords(localResult.savedWords || []);
+        const localFolders = ensureAllFolder(localResult.wordFolders || []);
+        
         if (!localResult.savedWordsMigrated) {
             chrome.storage.sync.get(['savedWords'], (syncResult) => {
                 if (chrome.runtime.lastError) {
                     console.error('Error reading sync savedWords:', chrome.runtime.lastError);
                     return;
                 }
-                const words = syncResult.savedWords || [];
-                chrome.storage.local.set({ savedWords: words, savedWordsMigrated: true }, () => {
+                const syncWords = Array.isArray(syncResult.savedWords) ? syncResult.savedWords : localWords;
+                const words = normalizeSavedWords(syncWords);
+                chrome.storage.local.set({ savedWords: words, wordFolders: localFolders, savedWordsMigrated: true }, () => {
                     if (chrome.runtime.lastError) {
                         console.error('Error migrating savedWords:', chrome.runtime.lastError);
                         return;
@@ -254,8 +265,63 @@ function migrateSavedWords() {
                     }
                 });
             });
+        } else {
+            chrome.storage.local.set({ savedWords: localWords, wordFolders: localFolders }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Error normalizing savedWords data:', chrome.runtime.lastError);
+                }
+            });
         }
     });
+}
+
+function normalizeSavedWord(word) {
+    if (!word || typeof word !== 'object' || !word.phrase) {
+        return null;
+    }
+    const normalizedFolders = Array.isArray(word.folders)
+        ? word.folders.filter((folderId) => typeof folderId === 'string' && folderId.trim())
+        : [];
+    return {
+        phrase: String(word.phrase),
+        definition: String(word.definition || ''),
+        explanation: String(word.explanation || ''),
+        url: String(word.url || ''),
+        savedAt: word.savedAt || new Date().toISOString(),
+        folders: Array.from(new Set([...normalizedFolders, ALL_FOLDER_ID]))
+    };
+}
+
+function normalizeSavedWords(words) {
+    const normalized = Array.isArray(words) ? words.map(normalizeSavedWord).filter(Boolean) : [];
+    const byPhrase = new Map();
+    normalized.forEach((word) => {
+        const existing = byPhrase.get(word.phrase);
+        if (!existing) {
+            byPhrase.set(word.phrase, word);
+            return;
+        }
+        byPhrase.set(word.phrase, {
+            ...existing,
+            ...word,
+            savedAt: existing.savedAt || word.savedAt,
+            folders: Array.from(new Set([...(existing.folders || []), ...(word.folders || []), ALL_FOLDER_ID]))
+        });
+    });
+    return Array.from(byPhrase.values());
+}
+
+function ensureAllFolder(folders) {
+    const normalized = Array.isArray(folders) ? folders.filter(Boolean) : [];
+    const byId = new Map(normalized.map((folder) => [folder.id, folder]));
+    byId.set(ALL_FOLDER_ID, {
+        ...DEFAULT_ALL_FOLDER,
+        ...(byId.get(ALL_FOLDER_ID) || {}),
+        id: ALL_FOLDER_ID,
+        name: 'Alle gemte ord',
+        system: true
+    });
+    return Array.from(byId.values());
 }
 
 // Toggle save state for the current word
@@ -265,22 +331,25 @@ function toggleSaveWord() {
     isSavingWord = true;
     
     chrome.storage.local.get(['savedWords'], (result) => {
-        const savedWords = result.savedWords || [];
+        const savedWords = normalizeSavedWords(result.savedWords || []);
         const index = savedWords.findIndex(w => w.phrase === wordToToggle.phrase);
         
         if (index === -1) {
-            savedWords.push({ ...wordToToggle, savedAt: new Date().toISOString() });
-            chrome.storage.local.set({ savedWords }, () => {
-                if (chrome.runtime.lastError) {
-                    console.error('Error saving word:', chrome.runtime.lastError);
-                } else if (currentWord?.phrase === wordToToggle.phrase) {
-                    setSaveButtonSaved(true);
-                }
-                isSavingWord = false;
+            savedWords.push({ ...wordToToggle, savedAt: new Date().toISOString(), folders: [ALL_FOLDER_ID] });
+            chrome.storage.local.get(['wordFolders'], (folderResult) => {
+                const wordFolders = ensureAllFolder(folderResult.wordFolders || []);
+                chrome.storage.local.set({ savedWords: normalizeSavedWords(savedWords), wordFolders }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error saving word:', chrome.runtime.lastError);
+                    } else if (currentWord?.phrase === wordToToggle.phrase) {
+                        setSaveButtonSaved(true);
+                    }
+                    isSavingWord = false;
+                });
             });
         } else {
             savedWords.splice(index, 1);
-            chrome.storage.local.set({ savedWords }, () => {
+            chrome.storage.local.set({ savedWords: normalizeSavedWords(savedWords) }, () => {
                 if (chrome.runtime.lastError) {
                     console.error('Error removing word:', chrome.runtime.lastError);
                 } else if (currentWord?.phrase === wordToToggle.phrase) {
@@ -301,7 +370,7 @@ function updateSaveButtonState(isSaved) {
     if (!currentWord) return;
     const phrase = currentWord.phrase;
     chrome.storage.local.get(['savedWords'], (result) => {
-        const savedWords = result.savedWords || [];
+        const savedWords = normalizeSavedWords(result.savedWords || []);
         const saved = savedWords.some(w => w.phrase === phrase);
         if (currentWord?.phrase === phrase) {
             setSaveButtonSaved(saved);
