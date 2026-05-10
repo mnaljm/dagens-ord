@@ -17,6 +17,18 @@
             <div class="section" id="saved-words-section">
                 <h2>Gemte Ord</h2>
                 <p>Ord du har gemt fra dagens ord</p>
+                <div class="folder-controls">
+                    <div class="new-folder-form">
+                        <input id="new-folder-name" type="text" maxlength="30" placeholder="Nyt mappenavn" aria-label="Nyt mappenavn">
+                        <input id="new-folder-color" type="color" value="#97A97C" aria-label="Vælg mappefarve">
+                        <button id="add-folder-btn" class="add-folder-button" type="button">Opret mappe</button>
+                    </div>
+                    <div id="folder-list" class="folder-list"></div>
+                    <div class="folder-filter">
+                        <label for="folder-filter-select">Vis mappe:</label>
+                        <select id="folder-filter-select"></select>
+                    </div>
+                </div>
                 <div id="saved-words-list">
                     <p class="no-saved-words">Du har ikke gemt nogen ord endnu.</p>
                 </div>
