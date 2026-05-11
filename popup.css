@@ -48,7 +48,8 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--gradient);
     color: var(--text-color);
-    width: 400px;
+    width: min(400px, 100vw);
+    max-width: 100vw;
     min-height: 300px;
     margin: 0;
     padding: 0;
@@ -216,6 +217,7 @@ header h1 {
     font-size: 14px;
     line-height: 1.6;
     color: var(--definition-color);
+    overflow-wrap: anywhere;
     transition: color 0.3s ease;
 }
 
@@ -232,6 +234,7 @@ header h1 {
     font-size: 13px;
     line-height: 1.6;
     color: var(--explanation-text);
+    overflow-wrap: anywhere;
     transition: color 0.3s ease;
 }
 
@@ -239,6 +242,7 @@ header h1 {
     display: flex;
     gap: 10px;
     justify-content: space-between;
+    align-items: stretch;
 }
 
 .btn-primary, .btn-secondary {
@@ -327,10 +331,41 @@ header h1 {
 /* Responsive adjustments */
 @media (max-width: 450px) {
     body {
-        width: 350px;
+        width: 100vw;
     }
-    
+
+    .bookmark-wrapper {
+        left: 14px;
+    }
+
+    header {
+        padding: 16px;
+    }
+
+    .settings-button {
+        top: 12px;
+        right: 12px;
+        padding: 7px;
+    }
+
+    .loading,
+    .error,
+    .content {
+        padding: 16px;
+    }
+
+    .phrase h2 {
+        font-size: 18px;
+    }
+
     .actions {
         flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-save {
+        width: 100%;
     }
 }
